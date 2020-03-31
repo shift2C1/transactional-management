@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!--事务配置文件-->
+    <bean class="com.pipichao.service.CustomerService" id="customerService"></bean>
+
+    <!--事务的代理对象-->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <!--所有以 get 开始的方法 都是 只读-->
+            <tx:method name="get*" read-only="true"/>
+            <!--rollback-for:默认情况下 spring事务管理器只会回滚运行时异常导致的事务，
+            通过该属性可以指定哪些异常可以导致事务回滚
+            如果我们想要某个事务不回滚，可以指定 norollback-for 属性，该属性指定的异常不会导致事务回滚，
+            当两个属性同时设置的时候更高级别的会战胜低级别的，例如 rollback-for 指定了 Trowable ，
+            norollback-for 之id那个了一个其他的异常，则 norollback-for 赢，除norollback-for指定的异常都会回滚
+            -->
+            <!--其他方法都是默认的-->
+            <tx:method name="*"></tx:method>
+        </tx:attributes>
+
+    </tx:advice>
+
+    <!--spring 声明式事务依赖于 aop 代理-->
+    <!---->
+    <aop:config>
+        <!--配置切入点到 service 包下的所有方法-->
+        <!--这里只是一个事务配置的例子，只配置到了具体的service类的方法-->
+        <!--可以通过不同的切面对不同的service层的方法进行事务配置-->
+        <aop:pointcut id="eg_serviceTx" expression="execution(public * com.pipichao.service.CustomerService.*(..))"></aop:pointcut>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="eg_serviceTx"></aop:advisor>
+
+    </aop:config>
+
+    <!--开启事务注解的注解驱动，相当于在java文件中配置 @EnableTransactionManagement-->
+    <!--扫描带有 @Transactional 注解的类或者方法，将其事务化-->
+    <tx:annotation-driven transaction-manager="transactionManager"></tx:annotation-driven>
+
+    <!--@EnableTransactionManagement 和 tx:annotation-driven 只会扫描他们定义的同一上下文中，
+    那意味着如果将注解驱动放到 DispatcherServlet 前置控制器的 WebApplicationContext 中
+    它只会扫描 controller 而不是service
+    -->
+    <!--当一个 bean 同时拥有事务切面和一个普通切面对象时候，可以配置二者的切面顺序（或者说是切面的范围）通过order接口
+
+    -->
+
+    <bean class="com.pipichao.service.BasematerialService"></bean>
+</beans>

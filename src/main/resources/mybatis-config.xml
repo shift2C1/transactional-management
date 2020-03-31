@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--持久层 mybatis 配置文件-->
+    <bean id="druidDataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="username" value="root"></property>
+        <property name="password"  value="2437262431"></property>
+        <property name="url" value="jdbc:mysql://localhost:3306/syerp?serverTimezone=UTC"></property>
+        <property name="driver" ref="jdbcDriver"></property>
+    </bean>
+    <bean  id="jdbcDriver" class="com.mysql.cj.jdbc.Driver">
+
+    </bean>
+    <bean class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="druidDataSource"></property>
+        <property name="mapperLocations" value="classpath:com/pipichao/dao/*.xml"></property>
+    </bean>
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.pipichao.dao"></property>
+    </bean>
+
+    <!--使用普通的jdbc事务管理器-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="druidDataSource"></property>
+    </bean>
+</beans>
